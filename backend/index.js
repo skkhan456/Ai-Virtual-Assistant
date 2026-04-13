@@ -18,15 +18,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(cors({
   origin: "https://virtualassistant-frontend-irgs.onrender.com", // your frontend
-  credentials: true               // ✅ IMPORTANT
+  credentials: true            
 }));
-
-app.use(
-  cors({
-    origin: "http://localhost:5173",
-    credentials: true,
-  }),
-);
 
 // routes
 app.use("/api/auth", authRouter);
