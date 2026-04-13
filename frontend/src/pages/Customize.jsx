@@ -8,7 +8,7 @@ import image5 from "../assets/image5.png";
 import image6 from "../assets/image6.jpeg";
 import image7 from "../assets/image7.jpeg";
 import { FaFileUpload } from "react-icons/fa";
-import { UserDataContext } from "../context/usercontext";
+import { UserDataContext } from "../context/usercontext.jsx";
 import { useNavigate } from "react-router-dom";
 import { IoArrowBackSharp } from "react-icons/io5";
 
