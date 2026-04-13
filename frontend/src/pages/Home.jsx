@@ -855,14 +855,14 @@ const Home = () => {
         <h2 className="text-xl font-bold mb-4">Menu</h2>
 
         <button
-          className="w-full mb-2 bg-white text-black rounded-full py-2"
+          className="w-full mb-2 bg-white text-black rounded-full py-2 cursor-pointer"
           onClick={handleLogOut}
         >
           Logout
         </button>
 
         <button
-          className="w-full mb-4 bg-white text-black rounded-full py-2"
+          className="w-full mb-4 bg-white text-black rounded-full py-2 cursor-pointer"
           onClick={() => navigate("/customize")}
         >
           Customize
