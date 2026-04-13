@@ -884,7 +884,7 @@ const Home = () => {
       </div>
 
       <button
-        className="absolute top-4 right-4 z-50 bg-white/90 px-3 py-1 rounded-full"
+        className="absolute top-4 right-4 z-50 bg-white/90 px-3 py-1 rounded-full cursor-pointer"
         onClick={() => setIsSidebarOpen(!isSidebarOpen)}
       >
         ☰
