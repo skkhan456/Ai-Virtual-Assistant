@@ -689,10 +689,169 @@ const Home = () => {
   };
 
   
+  // const speak = (text) => {
+  //   const utterance = new SpeechSynthesisUtterance(text);
+  //   utterance.lang = "hi-IN";
+
+  //   const voices = window.speechSynthesis.getVoices();
+  //   const hindiVoice = voices.find((v) => v.lang === "hi-IN");
+  //   if (hindiVoice) utterance.voice = hindiVoice;
+
+  //   isSpeakingRef.current = true;
+
+  //   utterance.onend = () => {
+  //     isSpeakingRef.current = false;
+  //     setAiText("");
+
+  //     setTimeout(() => {
+  //       try {
+  //         recognitionRef.current?.start();
+  //       } catch (e) {
+  //         console.log("Restart error:", e.message);
+  //       }
+  //     }, 1000);
+  //   };
+
+  //   window.speechSynthesis.cancel();
+  //   window.speechSynthesis.speak(utterance);
+  // };
+
+  // const speechRecognize = () => {
+  //   const SpeechRecognition =
+  //     window.SpeechRecognition || window.webkitSpeechRecognition;
+
+  //   if (!SpeechRecognition) {
+  //     console.log("Speech Recognition not supported");
+  //     return;
+  //   }
+
+  //   if (!recognitionRef.current) {
+  //     recognitionRef.current = new SpeechRecognition();
+  //   }
+
+  //   const recognition = recognitionRef.current;
+
+  //   recognition.continuous = true;
+  //   recognition.lang = "en-US";
+  //   recognition.interimResults = false;
+
+  //   let isMounted = true;
+
+  //   const safeStart = () => {
+  //     if (!isSpeakingRef.current && !isRecognizingRef.current && isMounted) {
+  //       try {
+  //         recognition.start();
+  //       } catch (err) {
+          
+  //       }
+  //     }
+  //   };
+
+  //   recognition.onstart = () => {
+  //     if (!isMounted) return;
+  //     setListening(true);
+  //     isRecognizingRef.current = true;
+  //   };
+
+  //   recognition.onend = () => {
+  //     if (!isMounted) return;
+
+  //     setListening(false);
+  //     isRecognizingRef.current = false;
+
+  //     if (!isSpeakingRef.current) {
+  //       setTimeout(() => safeStart(), 1200);
+  //     }
+  //   };
+
+  //   recognition.onerror = (event) => {
+  //     if (!isMounted) return;
+
+  //     console.log("Speech Error:", event.error);
+
+  //     if (event.error === "aborted" || event.error === "no-speech") return;
+
+  //     if (event.error === "not-allowed") {
+  //       console.log("Mic permission denied");
+  //       return;
+  //     }
+
+  //     setTimeout(() => safeStart(), 1500);
+  //   };
+
+  //   recognition.onresult = async (event) => {
+  //     if (!isMounted) return;
+
+  //     const transcript =
+  //       event.results[event.results.length - 1][0].transcript.trim();
+
+  //     setUserText(transcript);
+
+  //     if (
+  //       transcript
+  //         .toLowerCase()
+  //         .includes(userData?.user?.assistantName?.toLowerCase())
+  //     ) {
+  //       try {
+  //         recognition.stop();
+  //       } catch (e) {
+  //         console.log("Stop error:", e.message);
+  //       }
+
+  //       isRecognizingRef.current = false;
+  //       setListening(false);
+
+  //       const data = await getGeminiResponse(transcript);
+  //       if (!data) return;
+
+  //       setAiText(data.response);
+  //       setUserText("");
+
+  //       speak(data.response);
+  //       handleCommand(data);
+  //     }
+  //   };
+
+  //   safeStart();
+
+  //   return () => {
+  //     isMounted = false;
+
+  //     try {
+  //       recognition.abort();
+  //     } catch (e) {}
+
+  //     setListening(false);
+  //     isRecognizingRef.current = false;
+  //   };
+  // };
+
+ 
+  // useEffect(() => {
+  //   let cleanup;
+
+  //   if (userData && !recognitionRef.current) {
+  //     cleanup = speechRecognize(); // ✅ run once
+  //   }
+
+  //   const handleResize = () => {
+  //     setIsSidebarOpen(window.innerWidth >= 768);
+  //   };
+
+  //   window.addEventListener("resize", handleResize);
+
+  //   return () => {
+  //     window.removeEventListener("resize", handleResize);
+  //     if (cleanup) cleanup();
+  //   };
+  // }, [userData]);
+
+  const safeStartRef = useRef(null);
   const speak = (text) => {
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = "hi-IN";
 
+    // Voices may not be loaded yet — use onvoiceschanged or retry
     const voices = window.speechSynthesis.getVoices();
     const hindiVoice = voices.find((v) => v.lang === "hi-IN");
     if (hindiVoice) utterance.voice = hindiVoice;
@@ -702,18 +861,22 @@ const Home = () => {
     utterance.onend = () => {
       isSpeakingRef.current = false;
       setAiText("");
-
+      // ✅ Don't restart here — let recognition.onend handle it
+      // ✅ Just wait a moment then start safely
       setTimeout(() => {
-        try {
-          recognitionRef.current?.start();
-        } catch (e) {
-          console.log("Restart error:", e.message);
-        }
-      }, 1000);
+        safeStartRef.current?.();
+      }, 800);
     };
 
-    window.speechSynthesis.cancel();
-    window.speechSynthesis.speak(utterance);
+    // ✅ Stop recognition BEFORE speaking to avoid aborted conflict
+    try {
+      recognitionRef.current?.stop();
+    } catch (e) {}
+
+    setTimeout(() => {
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(utterance);
+    }, 300); // ✅ Small delay to let recognition fully stop
   };
 
   const speechRecognize = () => {
@@ -725,73 +888,102 @@ const Home = () => {
       return;
     }
 
-    if (!recognitionRef.current) {
-      recognitionRef.current = new SpeechRecognition();
-    }
-
-    const recognition = recognitionRef.current;
+    // ✅ Always create a fresh instance
+    const recognition = new SpeechRecognition();
+    recognitionRef.current = recognition;
 
     recognition.continuous = true;
     recognition.lang = "en-US";
     recognition.interimResults = false;
 
     let isMounted = true;
+    let restartTimer = null;
 
     const safeStart = () => {
-      if (!isSpeakingRef.current && !isRecognizingRef.current && isMounted) {
+      if (!isMounted) return;
+      if (isSpeakingRef.current) return; // ✅ Block if AI is speaking
+      if (isRecognizingRef.current) return; // ✅ Block if already running
+
+      clearTimeout(restartTimer);
+      restartTimer = setTimeout(() => {
+        if (!isMounted || isSpeakingRef.current || isRecognizingRef.current)
+          return;
         try {
           recognition.start();
         } catch (err) {
-          
+          console.log("Start error:", err.message);
         }
-      }
+      }, 100); // ✅ Small debounce prevents rapid-fire starts
     };
+
+    // ✅ Expose safeStart so speak() can call it
+    safeStartRef.current = safeStart;
 
     recognition.onstart = () => {
       if (!isMounted) return;
+      console.log("✅ Recognition STARTED");
       setListening(true);
       isRecognizingRef.current = true;
     };
 
     recognition.onend = () => {
       if (!isMounted) return;
+      console.log("🔴 Recognition ENDED, isSpeaking:", isSpeakingRef.current);
 
       setListening(false);
       isRecognizingRef.current = false;
 
+      // ✅ Only restart if AI is NOT speaking
       if (!isSpeakingRef.current) {
-        setTimeout(() => safeStart(), 1200);
+        safeStart();
       }
     };
 
     recognition.onerror = (event) => {
       if (!isMounted) return;
 
-      console.log("Speech Error:", event.error);
+      console.log("❌ Error type:", event.error);
+      console.log("❌ Error message:", event.message);
 
-      if (event.error === "aborted" || event.error === "no-speech") return;
+      // ✅ aborted/no-speech are non-fatal — just restart
+      if (event.error === "aborted" || event.error === "no-speech") {
+        isRecognizingRef.current = false;
+        if (!isSpeakingRef.current) safeStart();
+        return;
+      }
 
       if (event.error === "not-allowed") {
         console.log("Mic permission denied");
         return;
       }
 
-      setTimeout(() => safeStart(), 1500);
+      isRecognizingRef.current = false;
+      safeStart();
     };
 
     recognition.onresult = async (event) => {
       if (!isMounted) return;
 
+      console.log("🎤 Result fired, total results:", event.results.length);
+      console.log(
+        "🎤 Last transcript:",
+        event.results[event.results.length - 1][0].transcript,
+      );
+
       const transcript =
         event.results[event.results.length - 1][0].transcript.trim();
 
       setUserText(transcript);
+      console.log("Transcript received:", transcript);
 
       if (
         transcript
           .toLowerCase()
           .includes(userData?.user?.assistantName?.toLowerCase())
       ) {
+        // ✅ Set speaking flag BEFORE stopping recognition
+        isSpeakingRef.current = true;
+
         try {
           recognition.stop();
         } catch (e) {
@@ -802,7 +994,11 @@ const Home = () => {
         setListening(false);
 
         const data = await getGeminiResponse(transcript);
-        if (!data) return;
+        if (!data) {
+          isSpeakingRef.current = false; // ✅ Reset if no response
+          safeStartRef.current?.();
+          return;
+        }
 
         setAiText(data.response);
         setUserText("");
@@ -816,6 +1012,8 @@ const Home = () => {
 
     return () => {
       isMounted = false;
+      clearTimeout(restartTimer);
+      safeStartRef.current = null;
 
       try {
         recognition.abort();
@@ -826,13 +1024,10 @@ const Home = () => {
     };
   };
 
- 
   useEffect(() => {
-    let cleanup;
+    if (!userData) return;
 
-    if (userData && !recognitionRef.current) {
-      cleanup = speechRecognize(); // ✅ run once
-    }
+    const cleanup = speechRecognize(); // ✅ Always initialize fresh
 
     const handleResize = () => {
       setIsSidebarOpen(window.innerWidth >= 768);
@@ -842,10 +1037,9 @@ const Home = () => {
 
     return () => {
       window.removeEventListener("resize", handleResize);
-      if (cleanup) cleanup();
+      cleanup?.();
     };
-  }, [userData]);
-
+  }, [userData]); // ✅ Removed recognitionRef.current check — handled inside
   return (
     <div className="min-h-screen w-full flex bg-gradient-to-t from-black to-[#020270]">
 
