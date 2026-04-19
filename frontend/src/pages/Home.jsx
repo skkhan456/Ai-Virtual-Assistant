@@ -691,6 +691,7 @@ const Home = () => {
 
   const handleCommand = (data) => {
       const { type, userInput, response } = data;
+      console.log("handleCommand called:", data);
 
       if (type === "google_search") {
         const query = encodeURIComponent(userInput);
