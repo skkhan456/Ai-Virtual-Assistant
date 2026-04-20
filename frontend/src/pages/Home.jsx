@@ -443,20 +443,40 @@ const Home = () => {
 
   const isRecognizingRef = useRef(false);
 
-  const handleLogOut = async () => {
-    try {
-      await axios.post(
-        `${serverurl}/api/auth/logout`,
-        {},
-        { withCredentials: true },
-      );
-      setUserData(null);
-      navigate("/signin");
-    } catch (error) {
-      console.log("Logout failed:", error);
-    }
-  };
+  // const handleLogOut = async () => {
+  //   try {
+  //     await axios.post(
+  //       `${serverurl}/api/auth/logout`,
+  //       {},
+  //       { withCredentials: true },
+  //     );
+  //     setUserData(null);
+  //     navigate("/signin");
+  //   } catch (error) {
+  //     console.log("Logout failed:", error);
+  //   }
+  // };
 
+  const handleLogOut = async () => {
+  try {
+    await axios.post(
+      `${serverurl}/api/auth/logout`,
+      {},
+      { withCredentials: true }
+    );
+
+    setUserData(null);
+
+    // ✅ Add these if you store anything locally
+    localStorage.removeItem("userData");   // or whatever your key is
+    localStorage.clear();                  // or clear everything
+    sessionStorage.clear();
+
+    navigate("/signin");
+  } catch (error) {
+    console.log("Logout failed:", error);
+  }
+};
   // const handleCommand = (data) => {
   //   const { type, userInput } = data;
 
