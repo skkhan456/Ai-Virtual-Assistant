@@ -10,6 +10,7 @@ const UserDataProvider = ({ children }) => {
   const [frontendImage, setFrontendImage] = useState(null);
   const [backendImage, setBackendImage] = useState(null);
   const [selectedImage, setSelectedImage] = useState(null);
+  const [loading,setLoading]=useState(true);
 
   // const handleCurrentUser = async () => {
   //   try {
@@ -34,11 +35,13 @@ const UserDataProvider = ({ children }) => {
     if (error.response?.status === 401) {
       // User not logged in — expected after logout
       setUserData(null);
-      navigate("/signin");
+      // navigate("/signin");
     } else {
       // Only log unexpected real errors
       console.log("error in fetching current user", error);
     }
+  }finally{
+    setLoading(false)
   }
 };
   
@@ -81,6 +84,8 @@ const UserDataProvider = ({ children }) => {
     selectedImage,
     setSelectedImage,
     getGeminiResponse,
+    loading,
+    setLoading
   };
 
   return (
