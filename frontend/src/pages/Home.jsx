@@ -708,92 +708,99 @@ const Home = () => {
   //   }
   // };
 
-//   const handleCommandFromTranscript = (lower) => {
-//   // YouTube play/search
-//   if (lower.includes("play") && lower.includes("youtube")) {
-//     const query = lower.replace(/play|on youtube|youtube/gi, "").trim();
-//     window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`, "_blank");
-//     return true;
-//   }
+  const handleCommandFromTranscript = (transcript) => {
+  const lower = transcript.toLowerCase();
 
-//   if (lower.includes("youtube")) {
-//     const query = lower.replace(/search|on youtube|youtube|open/gi, "").trim();
-//     const url = query
-//       ? `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`
-//       : "https://www.youtube.com";
-//     window.open(url, "_blank");
-//     return true;
-//   }
-
-//   // Google search
-//   if (lower.includes("search") || lower.includes("google")) {
-//     const query = lower
-//       .replace(/search|on google|google|for/gi, "")
-//       .replace(userData?.user?.assistantName?.toLowerCase(), "")
-//       .trim();
-//     if (query) {
-//       window.open(`https://www.google.com/search?q=${encodeURIComponent(query)}`, "_blank");
-//       return true;
-//     }
-//   }
-
-//   // Direct opens
-//   if (lower.includes("instagram")) {
-//     window.open("https://www.instagram.com", "_blank");
-//     return true;
-//   }
-//   if (lower.includes("facebook")) {
-//     window.open("https://www.facebook.com", "_blank");
-//     return true;
-//   }
-//   if (lower.includes("github")) {
-//     window.open("https://www.github.com", "_blank");
-//     return true;
-//   }
-//   if (lower.includes("linkedin")) {
-//     window.open("https://www.linkedin.com", "_blank");
-//     return true;
-//   }
-//   if (lower.includes("whatsapp")) {
-//     window.open("https://web.whatsapp.com", "_blank");
-//     return true;
-//   }
-//   if (lower.includes("calculator")) {
-//     window.open("https://www.google.com/search?q=calculator", "_blank");
-//     return true;
-//   }
-//   if (lower.includes("weather")) {
-//     window.open("https://www.google.com/search?q=weather", "_blank");
-//     return true;
-//   }
-
-//   return false; // no command matched
-// };
-  const handleCommand = (data, newTab) => {
-  const { type, userInput } = data;
-
-  // ✅ Use Gemini's clean userInput directly
-  const urlMap = {
-    google_search: `https://www.google.com/search?q=${encodeURIComponent(userInput)}`,
-    youtube_search: `https://www.youtube.com/results?search_query=${encodeURIComponent(userInput)}`,
-    youtube_play: `https://www.youtube.com/results?search_query=${encodeURIComponent(userInput)}`,
-    instagram_open: `https://www.instagram.com/`,
-    facebook_open: `https://www.facebook.com/`,
-    calculator_open: `https://www.google.com/search?q=calculator`,
-    weather_show: `https://www.google.com/search?q=weather`,
-    open_github: `https://www.github.com`,
-    open_linkedin: `https://www.linkedin.com`,
-    open_whatsapp: `https://web.whatsapp.com`,
-  };
-
-  const url = urlMap[type];
-
-  if (url && newTab) {
-    newTab.location.href = url; // ✅ Redirect blank tab instantly
-  } else {
-    newTab?.close(); // ✅ No URL needed (general response), close blank tab
+  // ✅ Use lower directly — no cleaning needed
+  
+  if (lower.includes("instagram")) {
+    window.open("https://www.instagram.com", "_blank");
+    return true;
   }
+
+  if (lower.includes("facebook")) {
+    window.open("https://www.facebook.com", "_blank");
+    return true;
+  }
+
+  if (lower.includes("whatsapp")) {
+    window.open("https://web.whatsapp.com", "_blank");
+    return true;
+  }
+
+  if (lower.includes("github")) {
+    window.open("https://www.github.com", "_blank");
+    return true;
+  }
+
+  if (lower.includes("linkedin")) {
+    window.open("https://www.linkedin.com", "_blank");
+    return true;
+  }
+
+  if (lower.includes("calculator")) {
+    window.open("https://www.google.com/search?q=calculator", "_blank");
+    return true;
+  }
+
+  if (lower.includes("weather")) {
+    window.open("https://www.google.com/search?q=weather", "_blank");
+    return true;
+  }
+
+  if (lower.includes("youtube")) {
+    // Extract query by removing known words
+    const query = lower
+      .replace(userData?.user?.assistantName?.toLowerCase(), "")
+      .replace(/play|search|open|on youtube|youtube/gi, "")
+      .trim();
+
+    const url = query
+      ? `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`
+      : "https://www.youtube.com";
+    window.open(url, "_blank");
+    return true;
+  }
+
+  if (lower.includes("search") || lower.includes("google")) {
+    const query = lower
+      .replace(userData?.user?.assistantName?.toLowerCase(), "")
+      .replace(/search|on google|google|for/gi, "")
+      .trim();
+
+    if (query) {
+      window.open(`https://www.google.com/search?q=${encodeURIComponent(query)}`, "_blank");
+      return true;
+    }
+  }
+
+  return false;
 };
+//   const handleCommand = (data, newTab) => {
+//   const { type, userInput } = data;
+
+//   // ✅ Use Gemini's clean userInput directly
+//   const urlMap = {
+//     google_search: `https://www.google.com/search?q=${encodeURIComponent(userInput)}`,
+//     youtube_search: `https://www.youtube.com/results?search_query=${encodeURIComponent(userInput)}`,
+//     youtube_play: `https://www.youtube.com/results?search_query=${encodeURIComponent(userInput)}`,
+//     instagram_open: `https://www.instagram.com/`,
+//     facebook_open: `https://www.facebook.com/`,
+//     calculator_open: `https://www.google.com/search?q=calculator`,
+//     weather_show: `https://www.google.com/search?q=weather`,
+//     open_github: `https://www.github.com`,
+//     open_linkedin: `https://www.linkedin.com`,
+//     open_whatsapp: `https://web.whatsapp.com`,
+//   };
+
+//   const url = urlMap[type];
+
+//   if (url && newTab) {
+//     newTab.location.href = url; // ✅ Redirect blank tab instantly
+//   } else {
+//     newTab?.close(); // ✅ No URL needed (general response), close blank tab
+//   }
+// };
 
   // const handleCommand = (data) => {
   //     const { type, userInput, response } = data;
@@ -1173,14 +1180,13 @@ const Home = () => {
   isRecognizingRef.current = false;
   setListening(false);
 
-  // ✅ Open blank tab immediately (gesture still alive)
-  const newTab = window.open("", "_blank");
+  // ✅ Step 1: Open tab INSTANTLY — still inside gesture, zero async
+  handleCommandFromTranscript(transcript);
 
-  // ✅ Now do async call
+  // ✅ Step 2: Call Gemini ONLY for spoken response
   const data = await getGeminiResponse(transcript);
 
   if (!data) {
-    newTab?.close(); // close blank tab if API failed
     isSpeakingRef.current = false;
     safeStartRef.current?.();
     return;
@@ -1189,11 +1195,8 @@ const Home = () => {
   setAiText(data.response);
   setUserText("");
   speak(data.response);
-
-  // ✅ Pass newTab to handleCommand
-  handleCommand(data, newTab);
+  // ✅ No handleCommand(data) needed anymore — tab already opened above
 };
-
     safeStart();
 
     return () => {
