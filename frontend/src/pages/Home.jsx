@@ -708,6 +708,68 @@ const Home = () => {
   //   }
   // };
 
+  const handleCommandFromTranscript = (lower) => {
+  // YouTube play/search
+  if (lower.includes("play") && lower.includes("youtube")) {
+    const query = lower.replace(/play|on youtube|youtube/gi, "").trim();
+    window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`, "_blank");
+    return true;
+  }
+
+  if (lower.includes("youtube")) {
+    const query = lower.replace(/search|on youtube|youtube|open/gi, "").trim();
+    const url = query
+      ? `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`
+      : "https://www.youtube.com";
+    window.open(url, "_blank");
+    return true;
+  }
+
+  // Google search
+  if (lower.includes("search") || lower.includes("google")) {
+    const query = lower
+      .replace(/search|on google|google|for/gi, "")
+      .replace(userData?.user?.assistantName?.toLowerCase(), "")
+      .trim();
+    if (query) {
+      window.open(`https://www.google.com/search?q=${encodeURIComponent(query)}`, "_blank");
+      return true;
+    }
+  }
+
+  // Direct opens
+  if (lower.includes("instagram")) {
+    window.open("https://www.instagram.com", "_blank");
+    return true;
+  }
+  if (lower.includes("facebook")) {
+    window.open("https://www.facebook.com", "_blank");
+    return true;
+  }
+  if (lower.includes("github")) {
+    window.open("https://www.github.com", "_blank");
+    return true;
+  }
+  if (lower.includes("linkedin")) {
+    window.open("https://www.linkedin.com", "_blank");
+    return true;
+  }
+  if (lower.includes("whatsapp")) {
+    window.open("https://web.whatsapp.com", "_blank");
+    return true;
+  }
+  if (lower.includes("calculator")) {
+    window.open("https://www.google.com/search?q=calculator", "_blank");
+    return true;
+  }
+  if (lower.includes("weather")) {
+    window.open("https://www.google.com/search?q=weather", "_blank");
+    return true;
+  }
+
+  return false; // no command matched
+};
+
 
   const handleCommand = (data) => {
       const { type, userInput, response } = data;
@@ -1053,6 +1115,8 @@ const Home = () => {
 
         isRecognizingRef.current = false;
         setListening(false);
+
+        const handled = handleCommandFromTranscript(lower);
 
         const data = await getGeminiResponse(transcript);
         if (!data) {
