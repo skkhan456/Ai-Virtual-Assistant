@@ -708,108 +708,132 @@ const Home = () => {
   //   }
   // };
 
-  const handleCommandFromTranscript = (lower) => {
-  // YouTube play/search
-  if (lower.includes("play") && lower.includes("youtube")) {
-    const query = lower.replace(/play|on youtube|youtube/gi, "").trim();
-    window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`, "_blank");
-    return true;
-  }
+//   const handleCommandFromTranscript = (lower) => {
+//   // YouTube play/search
+//   if (lower.includes("play") && lower.includes("youtube")) {
+//     const query = lower.replace(/play|on youtube|youtube/gi, "").trim();
+//     window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`, "_blank");
+//     return true;
+//   }
 
-  if (lower.includes("youtube")) {
-    const query = lower.replace(/search|on youtube|youtube|open/gi, "").trim();
-    const url = query
-      ? `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`
-      : "https://www.youtube.com";
-    window.open(url, "_blank");
-    return true;
-  }
+//   if (lower.includes("youtube")) {
+//     const query = lower.replace(/search|on youtube|youtube|open/gi, "").trim();
+//     const url = query
+//       ? `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`
+//       : "https://www.youtube.com";
+//     window.open(url, "_blank");
+//     return true;
+//   }
 
-  // Google search
-  if (lower.includes("search") || lower.includes("google")) {
-    const query = lower
-      .replace(/search|on google|google|for/gi, "")
-      .replace(userData?.user?.assistantName?.toLowerCase(), "")
-      .trim();
-    if (query) {
-      window.open(`https://www.google.com/search?q=${encodeURIComponent(query)}`, "_blank");
-      return true;
-    }
-  }
+//   // Google search
+//   if (lower.includes("search") || lower.includes("google")) {
+//     const query = lower
+//       .replace(/search|on google|google|for/gi, "")
+//       .replace(userData?.user?.assistantName?.toLowerCase(), "")
+//       .trim();
+//     if (query) {
+//       window.open(`https://www.google.com/search?q=${encodeURIComponent(query)}`, "_blank");
+//       return true;
+//     }
+//   }
 
-  // Direct opens
-  if (lower.includes("instagram")) {
-    window.open("https://www.instagram.com", "_blank");
-    return true;
-  }
-  if (lower.includes("facebook")) {
-    window.open("https://www.facebook.com", "_blank");
-    return true;
-  }
-  if (lower.includes("github")) {
-    window.open("https://www.github.com", "_blank");
-    return true;
-  }
-  if (lower.includes("linkedin")) {
-    window.open("https://www.linkedin.com", "_blank");
-    return true;
-  }
-  if (lower.includes("whatsapp")) {
-    window.open("https://web.whatsapp.com", "_blank");
-    return true;
-  }
-  if (lower.includes("calculator")) {
-    window.open("https://www.google.com/search?q=calculator", "_blank");
-    return true;
-  }
-  if (lower.includes("weather")) {
-    window.open("https://www.google.com/search?q=weather", "_blank");
-    return true;
-  }
+//   // Direct opens
+//   if (lower.includes("instagram")) {
+//     window.open("https://www.instagram.com", "_blank");
+//     return true;
+//   }
+//   if (lower.includes("facebook")) {
+//     window.open("https://www.facebook.com", "_blank");
+//     return true;
+//   }
+//   if (lower.includes("github")) {
+//     window.open("https://www.github.com", "_blank");
+//     return true;
+//   }
+//   if (lower.includes("linkedin")) {
+//     window.open("https://www.linkedin.com", "_blank");
+//     return true;
+//   }
+//   if (lower.includes("whatsapp")) {
+//     window.open("https://web.whatsapp.com", "_blank");
+//     return true;
+//   }
+//   if (lower.includes("calculator")) {
+//     window.open("https://www.google.com/search?q=calculator", "_blank");
+//     return true;
+//   }
+//   if (lower.includes("weather")) {
+//     window.open("https://www.google.com/search?q=weather", "_blank");
+//     return true;
+//   }
 
-  return false; // no command matched
+//   return false; // no command matched
+// };
+  const handleCommand = (data, newTab) => {
+  const { type, userInput } = data;
+
+  // ✅ Use Gemini's clean userInput directly
+  const urlMap = {
+    google_search: `https://www.google.com/search?q=${encodeURIComponent(userInput)}`,
+    youtube_search: `https://www.youtube.com/results?search_query=${encodeURIComponent(userInput)}`,
+    youtube_play: `https://www.youtube.com/results?search_query=${encodeURIComponent(userInput)}`,
+    instagram_open: `https://www.instagram.com/`,
+    facebook_open: `https://www.facebook.com/`,
+    calculator_open: `https://www.google.com/search?q=calculator`,
+    weather_show: `https://www.google.com/search?q=weather`,
+    open_github: `https://www.github.com`,
+    open_linkedin: `https://www.linkedin.com`,
+    open_whatsapp: `https://web.whatsapp.com`,
+  };
+
+  const url = urlMap[type];
+
+  if (url && newTab) {
+    newTab.location.href = url; // ✅ Redirect blank tab instantly
+  } else {
+    newTab?.close(); // ✅ No URL needed (general response), close blank tab
+  }
 };
 
+  // const handleCommand = (data) => {
+  //     const { type, userInput, response } = data;
+  //     console.log("handleCommand called:", data);
 
-  const handleCommand = (data) => {
-      const { type, userInput, response } = data;
-      console.log("handleCommand called:", data);
+  //     if (type === "google_search") {
+  //       const query = encodeURIComponent(userInput);
+  //       window.open(`https://www.google.com/search?q=${query}`, "_blank");
+  //     }
+  //     if (type === "youtube_search" ) {
+  //       const query = encodeURIComponent(userInput);
+  //       window.open(
+  //         `https://www.youtube.com/results?search_query=${query}`,
+  //         "_blank",
+  //       );
+  //     }
 
-      if (type === "google_search") {
-        const query = encodeURIComponent(userInput);
-        window.open(`https://www.google.com/search?q=${query}`, "_blank");
-      }
-      if (type === "youtube_search" ) {
-        const query = encodeURIComponent(userInput);
-        window.open(
-          `https://www.youtube.com/results?search_query=${query}`,
-          "_blank",
-        );
-      }
+  //     if (type === "youtube_play") {
+  //   const query = encodeURIComponent(userInput);
+  //   window.open(
+  //     `https://www.youtube.com/results?search_query=${query}&autoplay=1`,
+  //     "_blank"
+  //   );
+  // }
 
-      if (type === "youtube_play") {
-    const query = encodeURIComponent(userInput);
-    window.open(
-      `https://www.youtube.com/results?search_query=${query}&autoplay=1`,
-      "_blank"
-    );
-  }
-
-      if (type === "instagram_open") {
-        const query = encodeURIComponent(userInput);
-        window.open(`https://www.instagram.com/`, "_blank");
-      }
-      if (type === "facebook_open") {
-        window.open(`https://www.facebook.com/`, "_blank");
-      }
-      if (type === "calculator_open") {
-        window.open(`https://www.google.com/search?q=calculation`, "_blank");
-      }
-      if (type === "weather_show") {
-        const query = encodeURIComponent(userInput);
-        window.open(`https://www.google.com/search?q=weather`, "_blank");
-      }
-    };
+  //     if (type === "instagram_open") {
+  //       const query = encodeURIComponent(userInput);
+  //       window.open(`https://www.instagram.com/`, "_blank");
+  //     }
+  //     if (type === "facebook_open") {
+  //       window.open(`https://www.facebook.com/`, "_blank");
+  //     }
+  //     if (type === "calculator_open") {
+  //       window.open(`https://www.google.com/search?q=calculation`, "_blank");
+  //     }
+  //     if (type === "weather_show") {
+  //       const query = encodeURIComponent(userInput);
+  //       window.open(`https://www.google.com/search?q=weather`, "_blank");
+  //     }
+  //   };
 
   
   // const speak = (text) => {
@@ -1084,56 +1108,91 @@ const Home = () => {
       safeStart();
     };
 
-    recognition.onresult = async (event) => {
-      if (!isMounted) return;
+    // recognition.onresult = async (event) => {
+    //   if (!isMounted) return;
 
-      console.log("🎤 Result fired, total results:", event.results.length);
-      console.log(
-        "🎤 Last transcript:",
-        event.results[event.results.length - 1][0].transcript,
-      );
+    //   console.log("🎤 Result fired, total results:", event.results.length);
+    //   console.log(
+    //     "🎤 Last transcript:",
+    //     event.results[event.results.length - 1][0].transcript,
+    //   );
 
-      const transcript =
-        event.results[event.results.length - 1][0].transcript.trim();
+    //   const transcript =
+    //     event.results[event.results.length - 1][0].transcript.trim();
 
-      setUserText(transcript);
-      console.log("Transcript received:", transcript);
-      const lower = transcript.toLowerCase();
+    //   setUserText(transcript);
+    //   console.log("Transcript received:", transcript);
+    //   const lower = transcript.toLowerCase();
 
-      if (
-        transcript
-          .toLowerCase()
-          .includes(userData?.user?.assistantName?.toLowerCase())
-      ) {
-        // ✅ Set speaking flag BEFORE stopping recognition
-        isSpeakingRef.current = true;
+    //   if (
+    //     transcript
+    //       .toLowerCase()
+    //       .includes(userData?.user?.assistantName?.toLowerCase())
+    //   ) {
+    //     // ✅ Set speaking flag BEFORE stopping recognition
+    //     isSpeakingRef.current = true;
 
-        try {
-          recognition.stop();
-        } catch (e) {
-          console.log("Stop error:", e.message);
-        }
+    //     try {
+    //       recognition.stop();
+    //     } catch (e) {
+    //       console.log("Stop error:", e.message);
+    //     }
 
         
-        isRecognizingRef.current = false;
-        setListening(false);
+    //     isRecognizingRef.current = false;
+    //     setListening(false);
 
-        const handled = handleCommandFromTranscript(lower);
+    //     const handled = handleCommandFromTranscript(lower);
 
-        const data = await getGeminiResponse(transcript);
-        if (!data) {
-          isSpeakingRef.current = false; // ✅ Reset if no response
-          safeStartRef.current?.();
-          return;
-        }
+    //     const data = await getGeminiResponse(transcript);
+    //     if (!data) {
+    //       isSpeakingRef.current = false; // ✅ Reset if no response
+    //       safeStartRef.current?.();
+    //       return;
+    //     }
 
-        setAiText(data.response);
-        setUserText("");
+    //     setAiText(data.response);
+    //     setUserText("");
 
-        speak(data.response);
-        handleCommand(data);
-      }
-    };
+    //     speak(data.response);
+    //     handleCommand(data);
+    //   }
+    // };
+
+    recognition.onresult = async (event) => {
+  const transcript =
+    event.results[event.results.length - 1][0].transcript.trim();
+  const lower = transcript.toLowerCase();
+
+  setUserText(transcript);
+
+  if (!lower.includes(userData?.user?.assistantName?.toLowerCase())) return;
+
+  isSpeakingRef.current = true;
+  try { recognition.stop(); } catch (e) {}
+  isRecognizingRef.current = false;
+  setListening(false);
+
+  // ✅ Open blank tab immediately (gesture still alive)
+  const newTab = window.open("", "_blank");
+
+  // ✅ Now do async call
+  const data = await getGeminiResponse(transcript);
+
+  if (!data) {
+    newTab?.close(); // close blank tab if API failed
+    isSpeakingRef.current = false;
+    safeStartRef.current?.();
+    return;
+  }
+
+  setAiText(data.response);
+  setUserText("");
+  speak(data.response);
+
+  // ✅ Pass newTab to handleCommand
+  handleCommand(data, newTab);
+};
 
     safeStart();
 
