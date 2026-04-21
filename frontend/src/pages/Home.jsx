@@ -1098,6 +1098,7 @@ const Home = () => {
 
       setUserText(transcript);
       console.log("Transcript received:", transcript);
+      const lower = transcript.toLowerCase();
 
       if (
         transcript
@@ -1113,6 +1114,7 @@ const Home = () => {
           console.log("Stop error:", e.message);
         }
 
+        
         isRecognizingRef.current = false;
         setListening(false);
 
