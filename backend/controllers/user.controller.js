@@ -266,3 +266,5 @@ const askToAssistant = async (req, res) => {
   }
 };
 
+export default askToAssistant;
+
