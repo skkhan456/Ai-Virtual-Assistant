@@ -20,6 +20,12 @@ const SignUp = () => {
 
   const handleSignUp=async (e)=>{
     e.preventDefault();
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailRegex.test(email)) {
+      alert("Please enter a valid email address");
+      return;
+    }
     setErr("");
     setLoading(true);
     try{   
